@@ -1,0 +1,417 @@
+---
+title: "Question 2: University_Data_Analysis"
+author: "Pavithra Senthilkumar"
+date: "2024-01-21"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+1. Loading the University Student Data 
+
+```{r}
+data<-read.csv("university_sci.csv",sep=",")
+
+```
+
+2. Dimensions of the Dataset and Finding Missing Elements
+
+```{r}
+
+dim(data)
+
+```
+The Data has a total of 395 records with 33 columns or variables.
+
+To find the missing elements in the dataframe, each vector/column is looked up for any missing values.
+
+Assuming and declaring the initial number of missing values as 0. (missing=0)
+
+```{r}
+#length(data) gives the column 
+#the loop goes over each vector or column.
+#the is.na() function returns a logical response, which is summed up for each vector
+
+for(i in 1:length(data))
+{
+  missing = 0
+  missing=sum(is.na(data[i]))
+  print(c('no.of missing values in',names(data[i]),missing))
+}
+```
+The result shows that there are no missing values in the dataset.
+
+3. Checking the Datatypes of each column
+
+```{r}
+#when the function str() is applied to a dataframe it returns all columns's type
+
+str(data)
+
+```
+The columns are of Integer and Character Types.
+Integer columns are :
+
+age,medu,fedu,traveltime,studytime,failures,famrel,freetime,
+goout,Dalc,Walc,health,absences,G1,G2,G3
+
+Character columns are: 
+
+University, Sex, Address Famsize, PStatus,MJob, FJob, Reason,Guardian,UniversitySup,familysup,paid,activities,nursery,
+higher,internet,romantic
+
+4. Data Distributions
+
+
+Distribution of Student Age
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+#Age Distribution with frequency plot
+
+data %>%
+  ggplot(aes(x=age)) +
+  geom_freqpoly(bins=10)
+
+```
+
+```{r}
+summary(data['age'])
+```
+To get a better picture, fitting a histogram to see the distribution for the above age data.
+
+
+```{r}
+age<-data$age
+hist(age,main="Distribution of Age",xlab ="Age",breaks=6)
+
+```
+To get to know the percentile distribution, 
+
+```{r}
+quantile(data[['age']],p=c(0.05,0.25,0.5,0.75,0.95))
+
+```
+Plotting boxplots to visualize percentiles better
+```{r}
+
+boxplot(data['age'],ylab='age')
+
+```
+The variable age has an average of 16.7 with maximum age of 22, which is also an outlier. The students are widely spread within the average age of 16 (lower quartile) to 18.0 (upper quartile).
+
+The distribution is more right skewed with ages spread till a maximum of 22, while a majority of the students being around the age 16.7
+
+
+Distribution of Mother's Education
+
+
+```{r}
+#Mother's Education
+
+hist(data$Medu,main="Mother's Education",labels=TRUE)
+
+```
+
+Percentage of Proportions:
+
+```{r}
+f1<-(59/nrow(data))
+f2<-(103/nrow(data))
+f3<- (99/nrow(data))
+f4<-(131/nrow(data))
+f_none<-(3/nrow(data))
+
+paste("Primary Education",f1)
+paste("5th to 9th Grade",f2)
+paste("Secondary Education",f3)
+paste("Higher Education",f4)
+paste("None",f_none)
+
+```
+
+
+It is noted that most of the student's mothers have completed their higher education, contributing to about 33.1% of the whole population. With 26.07% of proportion of 5th to 9th grade Moms, this becomes the second highest qualification.
+
+Distribution of Father's Education
+
+```{r}
+#Father's Education
+hist(data$Fedu,main="Father's Education",labels=TRUE)
+
+```
+
+Percentage of Proportions:
+
+```{r}
+
+f1<-(82/nrow(data))
+f2<-(115/nrow(data))
+f3<- (100/nrow(data))
+f4<-(96/nrow(data))
+f_none<-(2/nrow(data))
+
+paste("Primary Education",f1)
+paste("5th to 9th Grade",f2)
+paste("Secondary Education",f3)
+paste("Higher Education",f4)
+paste("None",f_none)
+```
+
+Unlike the mothers, It is noted that most of the student's fathers have completed only until 5th to 9th grade, contributing to the maximum percentage of about 29.11%.
+
+With 25.31% of proportion of Secondary Education, this becomes the second highest qualification in Fathers.
+
+
+Distribution of Study Time
+
+```{r}
+#Studytime Distribution
+
+study<-data$studytime
+hist(study,main="Distribution of Study Time",breaks=6.5,xlab ="Study Time",labels=TRUE)
+
+```
+It is noted that most of the students prefer studying for 2 hours. Nearly 6.8% of the students study for 4 hours.
+
+
+Getting to know the Data Better:
+
+* Is Health affecting Scores?
+
+To answer this, plotting a line for the Weakest Health student's final G3 scores to know how the score trend is. Also, plotting the same trend of G3 scores for students in good health condition.
+
+```{r}
+Gradehealth1<-data[data$health==1 ,c("health","G3")]
+
+Gradehealth1<-Gradehealth1[order(Gradehealth1$G3,decreasing=FALSE),]
+
+
+
+Gradehealth5<-data[data$health==5 ,c("health","G3")]
+
+Gradehealth5<-Gradehealth5[order(Gradehealth5$G3,decreasing=FALSE),]
+
+
+boxplot(Gradehealth1['G3'], xlab="Final grade Trend with Weak Health")
+
+
+
+```
+
+
+```{r}
+boxplot(Gradehealth5['G3'], xlab="Final grade Trend with Good Health")
+```
+
+```{r}
+summary(Gradehealth1$G3)
+length(Gradehealth1$G3)
+
+summary(Gradehealth5$G3)
+length(Gradehealth5$G3)
+```
+
+From the Graph and summary, out of 47 students whose health was bad, the average score of those students is 11.7 in the G3 assesment. 
+
+However, for the students with good health condition, the average score is lesser than the average score gained by weak health students. The mean score for good health students is 10.4
+
+The maximum score of the weak health students cohort is 19. Whereas, the maximum score of the good health student cohort is 18.
+
+Therefore, health might not be an impacting factor of the Scores.
+
+
+* Is past failure related with Grades?
+
+```{r}
+failures_3<-data[data$failures==3 ,c("failures","G3")]
+
+failures_0 <-data[data$failures==0,c("failures","G3")]
+
+
+summary(failures_3$G3)
+
+summary(failures_0$G3)
+
+```
+From the summaries, for the students with 3 past failures, the average score turns out to be 5.688 and the average score for the students with no failures in the past is 11.25.
+
+The maximum score for no past failures students is 20.
+The maximum score for 3 past failures student group is 10.
+
+The past failures might have an influence on grades.
+
+
+* Are the grades affected due to relationship?
+
+```{r}
+
+rel_yes<-data[data$romantic=="yes", c("romantic","G3")]
+rel_no<-data[data$romantic=="no", c("romantic","G3")]
+
+summary(rel_yes$G3)
+length(rel_yes$G3)
+
+
+summary(rel_no$G3)
+length(rel_no$G3)
+```
+From the spread of the data for both group of students (yes/no in relationship), it is seen that the average scores of students who are not in relationship have higher than those who are not. 
+
+This might be a metric that could impact the final scores.
+
+
+4. Converting 'Guardian' and 'Sex' Variable to Factors
+
+```{r}
+
+cols<-c("sex","guardian")
+
+data[cols]<-lapply(data[cols],factor)
+
+sapply(data,class)
+
+```
+
+5. How many students are Females? How many student's guardians are not their parents?
+
+```{r}
+females<-data[data$sex=="F",c("University","sex")]
+length(females$sex)
+```
+There are 208 females.
+
+
+```{r}
+not_parents<-data[data$guardian=="other",c("University","guardian")]
+length(not_parents$guardian)
+```
+There are 32 Students whose Guardian is not a parent.
+
+6. For some numerical variables that are integer data types, they may make more sense if they are converted to factors. Give an example and explain why. Do the conversion and show the factor levels. 
+
+* If the categorical variable is in the integer format, it must be converted to factors if the number of categories are countable/finite.
+
+* For example, the variable Mother's Education, Father's Education represent the levels of education they have. They represent levels (1-5) with highest as 5 and 1 as lowest. Which when assumed as numeric, they might be misinterpreted or could be taken as numeric weights instead of levels or categories, when proceeding with models. Hence, to avoid such confusions, it is good to convert the categorical numerical variables to factors.
+
+Converting Categorical numerics to factors.
+
+```{r}
+cols<-c("Medu","Fedu","traveltime","studytime","failures",
+        "famrel","freetime","goout","Dalc","Walc","health")
+
+data[cols]<-lapply(data[cols],factor)
+sapply(data,class)
+```
+
+
+7. G1 - G3 represent students' grades. Use hist() to get an idea the grade distributions. What do you observe in each distribution? and compare the three. 
+
+```{r}
+
+hist(data$G1)
+
+```
+
+
+```{r}
+
+summary(data$G1)
+
+```
+The Grade 1 distribution resembles a normal distribution with mean and median 10.91 and 11.00 respectively. The distribution is skewed a little to its right, which means few students grades are spread widely higher than the mean.
+
+```{r}
+hist(data$G2)
+
+```
+```{r}
+summary(data$G2)
+
+```
+The grade 2 also shows a normal distribution with median 11 and mean 10.71 respectively. Almost no student got grades between 1 to 5, whereas more than 15 students got 0. This makes the distribution a little uneven to its left.
+
+```{r}
+
+hist(data$G3)
+
+```
+
+```{r}
+
+summary(data$G3)
+
+```
+Unlike the G2 and G1, the distribution of G3 follows a normal distribution with two peaks (bimodal), with mean 10.42 and median 11. Nearly 40 students got 0, and no one got between 1-5.
+
+For all the three Grades(G1,G2,G3), it is noted that the median grade remained the same, i.e, 11. All three distribution follows a normal curve. They also have almost near mean values.
+
+
+
+8. Using logical expressions and subsetting, calculate the fraction of G3 that are less than its median.
+
+
+```{r}
+data_G3_frac <-data[data$G3<11.00 , c("University","G1","G2","G3")]
+new_len_g3<-length(data_G3_frac$G3)
+old_len_g3<-nrow(data)
+
+fract_G3<-(new_len_g3/old_len_g3)*100
+print(fract_G3)
+```
+About 47.08% of the population( 0.47 in fraction), are less than the median score for G3. 
+
+9. Create a random normal vector of the same length as G3 using the mean, standard deviation and length of G3. Call this new vector G3_rand. Visually verify that it follows a distribution similar to G3.
+
+
+```{r}
+
+G3_rand<-rnorm(n=395,mean=10.42,sd=4.58)
+
+hist(G3_rand)
+
+```
+
+```{r}
+sd(data$G3)
+mean(G3_rand)
+sd(G3_rand)
+
+```
+The random vector of G3, follows a more accurate normal distribution unlike that of G3.
+
+
+10.Add 'grade_level' to the dataframe as a new column. If a student's final grade (G3) is larger than 14, or between 10 to 14, or less than 10, assign them grade level: A, B, and C respectively. (Hint: ifelse() may be useful
+
+
+```{r}
+
+data$grade_level<-with(data,ifelse(G3 > 14,"A",
+                                                      ifelse(G3<10,"C","B")))
+
+head(data)
+
+
+```
+
+
+11. Now subset the dataframe according to the 'grade_level' column. (Hint: you can use df[] or subset().) You should have three dataframes. Make sure to give your new data objects meaningful names as discussed in class.
+
+
+
+```{r}
+
+data_grade_A<-data[data$grade_level=="A",]
+
+data_grade_B <-data[data$grade_level=="B",]
+
+data_grade_C<-data[data$grade_level=="C",]
+
+dim(data_grade_A)
+dim(data_grade_B)
+dim(data_grade_C)
+
+```
